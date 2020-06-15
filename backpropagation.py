@@ -7,21 +7,6 @@ import random
 import pickle
 random.seed(1)
 
-# defining constants
-
-n_input_neurons=784 # each image 
-n_hidden_neurons=10 # Taking the number of neurons in the middle layer=10 
-n_output_neurons=4  # output layer neurons 
-epochs=171  # Using multiple runs
-dims= (n_input_neurons, n_hidden_neurons, n_output_neurons)  # making a tuple to pass in further functions 
-learning_rate=0.1
-print("No of epochs: ",epochs)
-print("No of input neurons: ",n_input_neurons)
-print("No of hidden neurons: ",n_hidden_neurons)
-print("Learning rate: ",0.1)
-print("--Loss--\n")
-
-
 #Loading the data for training 
 
 def load_data(data,labels):
@@ -269,9 +254,20 @@ def param_change(params, grads, learning_rate):
 # 3. Returns: 
         #1. updated parameters dictionary.
 #""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+def gradient_update(dW1,db1,dW2,db2):
+    g= {} 
+    #gradient updation
+    g['dW1'] = dW1
+    g['db1'] = db1
+    g['dW2'] = dW2
+    g['db2'] = db2
+    return g
+ 
+
+
 def mlp_2L(X, Y, dims, epochs, learning_rate):
 
-    g= {}  
     np.random.seed(1)
     params = create_network(dims)
 
@@ -294,12 +290,9 @@ def mlp_2L(X, Y, dims, epochs, learning_rate):
         dA1, dW2, db2 = backward_propagate(dA2, cache2,'softmax')
         dA0, dW1, db1 = backward_propagate(dA1, cache1,'sigmoid')
         
-        #gradient updation
-        g['dW1'] = dW1
-        g['db1'] = db1
-        g['dW2'] = dW2
-        g['db2'] = db2
-
+        g=gradient_update(dW1,db1,dW2,db2)
+        
+        
         #parameter update
         params = param_change(params, g, learning_rate)
 
@@ -355,16 +348,32 @@ def accuracy_metric(real_labels,predicted_labels):
     ret=correct/float(len(real_labels))*100.0
     return ret
 
+if __name__ == '__main__':
+
+    # defining constants
+    n_input_neurons=784 # each image 
+    n_hidden_neurons=10 # Taking the number of neurons in the middle layer=10 
+    n_output_neurons=4  # output layer neurons 
+    epochs=171  # Using multiple runs
+    dims= (n_input_neurons, n_hidden_neurons, n_output_neurons)  # making a tuple to pass in further functions 
+    learning_rate=0.1
+    # print("No of epochs: ",epochs)
+    # print("No of input neurons: ",n_input_neurons)
+    # print("No of hidden neurons: ",n_hidden_neurons)
+    # print("Learning rate: ",0.1)
+    # print("--Loss--\n")
 # function calls 
 
-x_train,y_train,x_test,y_test=load_data('train_data.csv','train_labels.csv')
+    x_train,y_train,x_test,y_test=load_data('train_data.csv','train_labels.csv')
 
-x_train,y_train,x_test,y_test=preprocess(x_train,y_train,x_test,y_test)
+    x_train,y_train,x_test,y_test=preprocess(x_train,y_train,x_test,y_test)
 
-parameters_new = mlp_2L(x_train,y_train,dims,epochs,learning_rate)
+    parameters_new = mlp_2L(x_train,y_train,dims,epochs,learning_rate)
+    final_parameters=parameters_new
+    # print("typeparams: ",type(final_parameters))
+    # print(final_parameters)
+    out_z1, cache1,out_z2,cache2,predicted_labels,real_labels=classify(parameters_new,x_test)
 
-out_z1, cache1,out_z2,cache2,predicted_labels,real_labels=classify(parameters_new,x_test)
+    pickle_dumps(final_parameters)
 
-pickle_dumps(parameters_new)
-
-print(accuracy_metric(real_labels,predicted_labels))
+    print(accuracy_metric(real_labels,predicted_labels))
