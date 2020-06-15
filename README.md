@@ -6,3 +6,4 @@
 3. Backpropagation contains all the functions.
 4. acc_calc calculates the accuracy. 
 5. test.py calls test_mlp() function in test_mlp.py.
+6. Data files can be added. code is modular.
